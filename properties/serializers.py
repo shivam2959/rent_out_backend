@@ -37,10 +37,10 @@ class BuildingSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['owner', 'created_at', 'updated_at']
 
-    def get_total_rooms(self, obj):
+    def get_total_rooms(self, obj) -> int:
         return obj.rooms.count()
 
-    def get_available_rooms(self, obj):
+    def get_available_rooms(self, obj) -> int:
         return obj.rooms.filter(status='available').count()
 
 
@@ -54,8 +54,8 @@ class BuildingListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'building_type', 'city', 'state', 'is_active',
                   'owner_email', 'total_rooms', 'available_rooms', 'created_at']
 
-    def get_total_rooms(self, obj):
+    def get_total_rooms(self, obj) -> int:
         return obj.rooms.count()
 
-    def get_available_rooms(self, obj):
+    def get_available_rooms(self, obj) -> int:
         return obj.rooms.filter(status='available').count()

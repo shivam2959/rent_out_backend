@@ -10,7 +10,7 @@ class BuildingReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['reviewer', 'created_at', 'updated_at']
 
-    def get_reviewer_name(self, obj):
+    def get_reviewer_name(self, obj) -> str:
         if obj.is_anonymous:
             return 'Anonymous'
         return obj.reviewer.get_full_name() or obj.reviewer.email

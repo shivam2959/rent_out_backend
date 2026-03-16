@@ -132,4 +132,11 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
+    'ENUM_NAME_OVERRIDES': {
+        'RoomStatusEnum': 'properties.models.Room.STATUS_CHOICES',
+        'LeaseStatusEnum': 'leases.models.LeaseAgreement.STATUS_CHOICES',
+        'PaymentStatusEnum': 'payments.models.Payment.STATUS_CHOICES',
+        'MaintenanceStatusEnum': 'maintenance.models.MaintenanceRequest.STATUS_CHOICES',
+        'OnboardingStatusEnum': 'tenants.models.TenantOnboardingRequest.STATUS_CHOICES',
+    },
 }
