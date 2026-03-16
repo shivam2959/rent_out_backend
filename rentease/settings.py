@@ -4,8 +4,14 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-dev-key-change-in-production-xyz123')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+_secret_key = os.environ.get('SECRET_KEY')
+if not _secret_key:
+    if os.environ.get('DJANGO_ENV') == 'production':
+        raise ValueError("SECRET_KEY environment variable must be set in production.")
+    _secret_key = 'django-insecure-dev-only-key-do-not-use-in-production'
+SECRET_KEY = _secret_key
+
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 DJANGO_APPS = [
