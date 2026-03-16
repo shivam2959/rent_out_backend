@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import TenantOnboardingRequest
-from .serializers import TenantOnboardingRequestSerializer, StepUpdateSerializer
+from .serializers import TenantOnboardingRequestSerializer
 from users.permissions import IsTenantOrAdmin, IsOwnerOrAdmin
 
 
@@ -47,12 +47,15 @@ class TenantOnboardingViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
-        onboarding = self.get_object()
-        onboarding.status = 'approved'
-        onboarding.notes = request.data.get('notes', onboarding.notes)
-        onboarding.save()
-        onboarding.room.is_available = False
-        onboarding.room.save()
+        from django.db import transaction
+        with transaction.atomic():
+            onboarding = TenantOnboardingRequest.objects.select_for_update().get(pk=pk)
+            onboarding.status = 'approved'
+            onboarding.notes = request.data.get('notes', onboarding.notes)
+            onboarding.save()
+            room = onboarding.room.__class__.objects.select_for_update().get(pk=onboarding.room.pk)
+            room.is_available = False
+            room.save()
         return Response(TenantOnboardingRequestSerializer(onboarding).data)
 
     @action(detail=True, methods=['post'])

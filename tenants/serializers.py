@@ -13,8 +13,3 @@ class TenantOnboardingRequestSerializer(serializers.ModelSerializer):
                   'status', 'personal_info', 'id_proof', 'address_proof', 'employment_proof',
                   'references', 'current_step', 'notes', 'created_at', 'updated_at')
         read_only_fields = ('id', 'tenant', 'status', 'current_step', 'created_at', 'updated_at')
-
-
-class StepUpdateSerializer(serializers.Serializer):
-    step_data = serializers.JSONField(required=False)
-    file = serializers.FileField(required=False)
