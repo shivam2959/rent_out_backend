@@ -1,13 +1,15 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, OwnerProfile, TenantProfile, LeaseOperatorProfile
-from .permissions import IsOwner, IsTenant, IsLeaseOperator
+from .models import CustomUser, OwnerProfile, TenantProfile, LeaseOperatorProfile, BrokerProfile, SocietyManagerProfile, BrokerCommission
+from .permissions import IsOwner, IsTenant, IsLeaseOperator, IsBroker, IsSocietyManager
 from .serializers import (
     RegisterSerializer, LoginSerializer, UserSerializer,
-    OwnerProfileSerializer, TenantProfileSerializer, LeaseOperatorProfileSerializer
+    OwnerProfileSerializer, TenantProfileSerializer, LeaseOperatorProfileSerializer,
+    BrokerProfileSerializer, SocietyManagerProfileSerializer, BrokerCommissionSerializer,
 )
 
 class RegisterView(generics.CreateAPIView):
@@ -75,6 +77,13 @@ class TenantProfileView(generics.RetrieveUpdateAPIView):
         profile, _ = TenantProfile.objects.get_or_create(user=self.request.user)
         return profile
 
+    def post(self, request, *args, **kwargs):
+        """Submit KYC – marks profile status as 'submitted'."""
+        profile, _ = TenantProfile.objects.get_or_create(user=request.user)
+        profile.kyc_status = 'submitted'
+        profile.save()
+        return Response(TenantProfileSerializer(profile).data, status=status.HTTP_200_OK)
+
 class LeaseOperatorProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = LeaseOperatorProfileSerializer
     permission_classes = [IsLeaseOperator]
@@ -82,3 +91,45 @@ class LeaseOperatorProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         profile, _ = LeaseOperatorProfile.objects.get_or_create(user=self.request.user)
         return profile
+
+class BrokerProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = BrokerProfileSerializer
+    permission_classes = [IsBroker]
+
+    def get_object(self):
+        profile, _ = BrokerProfile.objects.get_or_create(user=self.request.user)
+        return profile
+
+class SocietyManagerProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = SocietyManagerProfileSerializer
+    permission_classes = [IsSocietyManager]
+
+    def get_object(self):
+        profile, _ = SocietyManagerProfile.objects.get_or_create(user=self.request.user)
+        return profile
+
+
+class BrokerCommissionViewSet(viewsets.ModelViewSet):
+    """Broker commission management – brokers see their own, owners/admins see all."""
+    serializer_class = BrokerCommissionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'broker':
+            return BrokerCommission.objects.filter(broker=user)
+        if user.role == 'owner':
+            return BrokerCommission.objects.filter(lease__owner=user)
+        return BrokerCommission.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(broker=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def mark_paid(self, request, pk=None):
+        from django.utils import timezone
+        commission = self.get_object()
+        commission.status = 'paid'
+        commission.paid_at = timezone.now()
+        commission.save()
+        return Response(BrokerCommissionSerializer(commission).data)

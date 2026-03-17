@@ -3,8 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Payment, PaymentReceipt, PaymentGatewayWebhookLog
-from .serializers import PaymentSerializer, PaymentReceiptSerializer, WebhookLogSerializer
+from .models import Payment, PaymentReceipt, PaymentGatewayWebhookLog, UtilityBill
+from .serializers import PaymentSerializer, PaymentReceiptSerializer, WebhookLogSerializer, UtilityBillSerializer
 
 class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
@@ -46,3 +46,13 @@ class WebhookView(APIView):
             payload=request.data,
         )
         return Response({'id': log.id}, status=status.HTTP_200_OK)
+
+class UtilityBillViewSet(viewsets.ModelViewSet):
+    serializer_class = UtilityBillSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role in ('owner', 'admin'):
+            return UtilityBill.objects.filter(room__building__owner=user)
+        return UtilityBill.objects.filter(room__leases__tenant=user, room__leases__status='active').distinct()

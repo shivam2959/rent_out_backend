@@ -2,8 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import LeaseAgreement
-from .serializers import LeaseAgreementSerializer
+from .models import LeaseAgreement, RentSchedule
+from .serializers import LeaseAgreementSerializer, RentScheduleSerializer
 
 class LeaseAgreementViewSet(viewsets.ModelViewSet):
     serializer_class = LeaseAgreementSerializer
@@ -30,3 +30,16 @@ class LeaseAgreementViewSet(viewsets.ModelViewSet):
         lease.status = new_status
         lease.save()
         return Response(LeaseAgreementSerializer(lease).data)
+
+
+class RentScheduleViewSet(viewsets.ModelViewSet):
+    serializer_class = RentScheduleSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'tenant':
+            return RentSchedule.objects.filter(lease__tenant=user)
+        if user.role == 'owner':
+            return RentSchedule.objects.filter(lease__owner=user)
+        return RentSchedule.objects.all()

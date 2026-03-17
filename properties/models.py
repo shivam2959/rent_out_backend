@@ -9,8 +9,12 @@ class Amenity(models.Model):
 
 class Building(models.Model):
     BUILDING_TYPES = [
-        ('residential', 'Residential'),
-        ('commercial', 'Commercial'),
+        ('pg', 'PG / Paying Guest'),
+        ('residential', 'Residential Building'),
+        ('villa', 'Villa / Independent House'),
+        ('commercial', 'Commercial / Shop'),
+        ('office', 'Office Space'),
+        ('coworking', 'Co-working Space'),
         ('mixed', 'Mixed Use'),
     ]
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='buildings')
@@ -18,6 +22,7 @@ class Building(models.Model):
     address = models.TextField()
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
+    pin_code = models.CharField(max_length=10, blank=True)
     description = models.TextField(blank=True)
     building_type = models.CharField(max_length=20, choices=BUILDING_TYPES, default='residential')
     total_floors = models.PositiveIntegerField(default=1)
@@ -36,6 +41,19 @@ class BuildingPhoto(models.Model):
     def __str__(self):
         return f"Photo for {self.building.name}"
 
+class Floor(models.Model):
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='floors')
+    floor_number = models.IntegerField(default=0)
+    label = models.CharField(max_length=50, blank=True, help_text="E.g. Ground Floor, Basement, Mezzanine")
+
+    class Meta:
+        unique_together = ('building', 'floor_number')
+        ordering = ['floor_number']
+
+    def __str__(self):
+        label = self.label or f"Floor {self.floor_number}"
+        return f"{label} – {self.building.name}"
+
 class Room(models.Model):
     ROOM_TYPES = [
         ('single', 'Single'),
@@ -44,11 +62,16 @@ class Room(models.Model):
         ('1bhk', '1 BHK'),
         ('2bhk', '2 BHK'),
         ('3bhk', '3 BHK'),
+        ('villa', 'Villa / Independent Unit'),
+        ('pg_bed', 'PG Bed'),
+        ('shop', 'Commercial Shop'),
+        ('office', 'Office Space'),
+        ('coworking_desk', 'Co-working Desk / Cabin'),
         ('commercial', 'Commercial'),
     ]
     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms')
+    floor = models.ForeignKey(Floor, on_delete=models.SET_NULL, null=True, blank=True, related_name='rooms')
     room_number = models.CharField(max_length=20)
-    floor = models.PositiveIntegerField(default=0)
     room_type = models.CharField(max_length=20, choices=ROOM_TYPES, default='single')
     rent_amount = models.DecimalField(max_digits=10, decimal_places=2)
     deposit_amount = models.DecimalField(max_digits=10, decimal_places=2)

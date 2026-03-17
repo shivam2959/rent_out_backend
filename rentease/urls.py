@@ -17,4 +17,9 @@ urlpatterns = [
     path('api/reviews/', include('reviews.urls')),
     path('api/maintenance/', include('maintenance.urls')),
     path('api/dashboard/', include('dashboard.urls')),
+    path('api/visitors/', include('visitors.urls')),
+    path('api/inventory/', include('inventory.urls')),
+    path('api/subscriptions/', include('subscriptions.urls')),
+    path('api/marketplace/', include('marketplace.urls')),
+    path('api/notifications/', include('notifications_app.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

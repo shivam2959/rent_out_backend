@@ -1,7 +1,7 @@
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
-from .models import Building, Room
-from .serializers import BuildingSerializer, RoomSerializer
+from .models import Building, Floor, Room
+from .serializers import BuildingSerializer, FloorSerializer, RoomSerializer
 
 class BuildingViewSet(viewsets.ModelViewSet):
     serializer_class = BuildingSerializer
@@ -15,6 +15,13 @@ class BuildingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+class FloorViewSet(viewsets.ModelViewSet):
+    serializer_class = FloorSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Floor.objects.filter(building__owner=self.request.user)
 
 class RoomViewSet(viewsets.ModelViewSet):
     serializer_class = RoomSerializer

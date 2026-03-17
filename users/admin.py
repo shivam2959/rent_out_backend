@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, OwnerProfile, TenantProfile, LeaseOperatorProfile
+from .models import CustomUser, OwnerProfile, TenantProfile, LeaseOperatorProfile, BrokerProfile, SocietyManagerProfile, BrokerCommission
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
@@ -13,3 +13,6 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(OwnerProfile)
 admin.site.register(TenantProfile)
 admin.site.register(LeaseOperatorProfile)
+admin.site.register(BrokerProfile)
+admin.site.register(SocietyManagerProfile)
+admin.site.register(BrokerCommission)
