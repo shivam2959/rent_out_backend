@@ -12,7 +12,7 @@ from subscriptions.models import Subscription
 
 def _occupancy_rate(total, occupied):
     """Return occupancy percentage rounded to one decimal place."""
-    return round(occupied / total * 100, 1) if total else 0
+    return round(occupied / total * 100, 1) if total else 0.0
 
 
 class OwnerDashboardView(APIView):

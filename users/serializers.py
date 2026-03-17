@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import CustomUser, OwnerProfile, TenantProfile, LeaseOperatorProfile, BrokerProfile, SocietyManagerProfile
+from .models import CustomUser, OwnerProfile, TenantProfile, LeaseOperatorProfile, BrokerProfile, SocietyManagerProfile, BrokerCommission
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -52,7 +52,7 @@ class TenantProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = TenantProfile
         fields = '__all__'
-        read_only_fields = ['user']
+        read_only_fields = ['user', 'is_verified']
 
 class LeaseOperatorProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,3 +71,9 @@ class SocietyManagerProfileSerializer(serializers.ModelSerializer):
         model = SocietyManagerProfile
         fields = '__all__'
         read_only_fields = ['user']
+
+class BrokerCommissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BrokerCommission
+        fields = '__all__'
+        read_only_fields = ['broker', 'created_at']

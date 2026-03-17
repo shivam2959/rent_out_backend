@@ -19,17 +19,20 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         return Subscription.objects.filter(owner=user)
 
     def perform_create(self, serializer):
+        import calendar
         user = self.request.user
         active_rooms = Room.objects.filter(
             building__owner=user, is_available=False
         ).count()
         today = timezone.now().date()
-        billing_end = today.replace(day=28) if today.day < 28 else today
+        last_day = calendar.monthrange(today.year, today.month)[1]
+        billing_start = today.replace(day=1)
+        billing_end = today.replace(day=last_day)
         serializer.save(
             owner=user,
             active_room_count=active_rooms,
             price_per_room=PRICE_PER_ROOM,
-            billing_period_start=today.replace(day=1),
+            billing_period_start=billing_start,
             billing_period_end=billing_end,
         )
 

@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'visitors',
     'inventory',
     'subscriptions',
+    'marketplace',
+    'notifications_app',
 ]
 
 MIDDLEWARE = [

@@ -28,9 +28,28 @@ class OwnerProfile(models.Model):
         return f"OwnerProfile: {self.user.username}"
 
 class TenantProfile(models.Model):
+    KYC_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('submitted', 'Submitted'),
+        ('verified', 'Verified'),
+        ('rejected', 'Rejected'),
+    ]
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='tenant_profile')
     occupation = models.CharField(max_length=200, blank=True)
     monthly_income = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    # KYC
+    government_id_type = models.CharField(
+        max_length=50, blank=True,
+        help_text="E.g. Aadhaar, PAN, Passport, Driving License"
+    )
+    government_id_number = models.CharField(max_length=100, blank=True)
+    kyc_document = models.FileField(upload_to='kyc/tenants/', blank=True, null=True)
+    kyc_status = models.CharField(max_length=20, choices=KYC_STATUS_CHOICES, default='pending')
+    # Emergency contact
+    emergency_contact_name = models.CharField(max_length=200, blank=True)
+    emergency_contact_phone = models.CharField(max_length=20, blank=True)
+    emergency_contact_relationship = models.CharField(max_length=100, blank=True)
+    # Legacy field kept for compatibility
     emergency_contact = models.CharField(max_length=20, blank=True)
     is_verified = models.BooleanField(default=False)
 
@@ -66,3 +85,30 @@ class SocietyManagerProfile(models.Model):
 
     def __str__(self):
         return f"SocietyManagerProfile: {self.user.username}"
+
+
+class BrokerCommission(models.Model):
+    """Tracks commission owed to a broker for onboarding a tenant via a lease."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('cancelled', 'Cancelled'),
+    ]
+    broker = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE,
+        related_name='commissions_earned',
+        limit_choices_to={'role': 'broker'},
+    )
+    # Deferred import via string reference to avoid circular imports
+    lease = models.ForeignKey(
+        'leases.LeaseAgreement', on_delete=models.CASCADE,
+        related_name='broker_commissions',
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    paid_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Commission ₹{self.amount} for {self.broker.username} ({self.status})"
