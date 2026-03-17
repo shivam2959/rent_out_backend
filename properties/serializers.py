@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Amenity, Building, BuildingPhoto, Room, RoomPhoto
+from .models import Amenity, Building, BuildingPhoto, Floor, Room, RoomPhoto
 
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +16,11 @@ class RoomPhotoSerializer(serializers.ModelSerializer):
         model = RoomPhoto
         fields = '__all__'
 
+class FloorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Floor
+        fields = '__all__'
+
 class RoomSerializer(serializers.ModelSerializer):
     photos = RoomPhotoSerializer(many=True, read_only=True)
 
@@ -26,6 +31,7 @@ class RoomSerializer(serializers.ModelSerializer):
 class BuildingSerializer(serializers.ModelSerializer):
     photos = BuildingPhotoSerializer(many=True, read_only=True)
     rooms = RoomSerializer(many=True, read_only=True)
+    floors = FloorSerializer(many=True, read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
     amenity_ids = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Amenity.objects.all(), write_only=True, source='amenities', required=False

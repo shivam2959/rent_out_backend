@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     RegisterView, LoginView, LogoutView, ProfileView,
-    OwnerProfileView, TenantProfileView, LeaseOperatorProfileView
+    OwnerProfileView, TenantProfileView, LeaseOperatorProfileView,
+    BrokerProfileView, SocietyManagerProfileView,
 )
 
 urlpatterns = [
@@ -12,4 +13,6 @@ urlpatterns = [
     path('profile/owner/', OwnerProfileView.as_view(), name='owner-profile'),
     path('profile/tenant/', TenantProfileView.as_view(), name='tenant-profile'),
     path('profile/lease-operator/', LeaseOperatorProfileView.as_view(), name='lease-operator-profile'),
+    path('profile/broker/', BrokerProfileView.as_view(), name='broker-profile'),
+    path('profile/society-manager/', SocietyManagerProfileView.as_view(), name='society-manager-profile'),
 ]

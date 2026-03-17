@@ -6,6 +6,8 @@ class CustomUser(AbstractUser):
         ('owner', 'Owner'),
         ('tenant', 'Tenant'),
         ('lease_operator', 'Lease Operator'),
+        ('broker', 'Broker / Agent'),
+        ('society_manager', 'Society Manager'),
         ('admin', 'Admin'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='tenant')
@@ -43,3 +45,24 @@ class LeaseOperatorProfile(models.Model):
 
     def __str__(self):
         return f"LeaseOperatorProfile: {self.user.username}"
+
+
+class BrokerProfile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='broker_profile')
+    agency_name = models.CharField(max_length=200, blank=True)
+    license_number = models.CharField(max_length=100, blank=True)
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"BrokerProfile: {self.user.username}"
+
+
+class SocietyManagerProfile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='society_manager_profile')
+    society_name = models.CharField(max_length=200, blank=True)
+    designation = models.CharField(max_length=100, blank=True)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"SocietyManagerProfile: {self.user.username}"

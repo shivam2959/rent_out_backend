@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'reviews',
     'maintenance',
     'dashboard',
+    'visitors',
+    'inventory',
+    'subscriptions',
 ]
 
 MIDDLEWARE = [
