@@ -33,8 +33,9 @@ else
     echo "[3/5] .env already exists – skipping."
 fi
 
-# 5. Run migrations
+# 5. Create migration files (if not already created) and apply them
 echo "[4/5] Running database migrations..."
+python manage.py makemigrations
 python manage.py migrate
 
 # 6. Create superuser if none exists

@@ -35,6 +35,7 @@ pip install -r requirements.txt
 cp .env.example .env              # edit values if needed
 
 # 4. Run migrations
+python manage.py makemigrations
 python manage.py migrate
 
 # 5. Create a superuser
